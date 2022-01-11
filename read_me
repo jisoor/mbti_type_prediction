@@ -1,0 +1,61 @@
+<프로젝트 개요>
+mbti유형의 속성을 설명하고 분석하는 글들을 통해서 16가지 mbti 유형을 예측합니다.
+최종목표는 친구의 성격이나 말한 내용을 입력하여 mbti 유형을 추측하게 하는 예측 모델을 만드는 것입니다.
+
+<주의 사항>
+-새 프로젝트에 생성하고 시작할 것 : crawling 폴더 ,models 폴더, chromedriver.exe
+ 이 후,
+아래의 설명에 맞춰 하나씩 코드를 복붙해와서 실행해야 충돌이 일어나는 것을 방지할 수 있다.
+
+---------------------------- crawling -----------------------------------------
+1. 크롤링은 두가지사이트 에서 한다.
+    1.Truity: MBTI 기본 주요 특성에 대해 정리한 사이트
+          https://www.truity.com/personality-type/ENFP
+    2.Personality Database : 전세계 영화/드라마/만화 등등의 캐릭터나 연예인의 mbti를 일반인 유저들이 댓글에 다양하게 분석하며 예측한다.
+          https://www.personality-database.com/vote
+
+2. 두 가지 컬럼[comment, type] 을 가진 DataFrame을 만들 것임.
+
+3. 01_crawling01_mbti_truity.py  에서 enfp, estj ... istj 16개의 유형에있는 overview / strengths / career / relationships 에 있는 모든 데이터 크롤링
+4. 01_crawling02_mbti_personality_database.py 에서 데이터 크롤링
+  - 주의점1 : 미국 서버에 접속하므로 로딩시간이 매우길다. 로딩 후 time.sleep을 3~10 초 이상 주어야 한다.
+  - 주의점2 : 다음 페이지로 넘어가는 버튼이나 숫자가 없고, 밑으로 스크롤하면 무한로딩 되면서 다음 페이지의 데이터가 자동으로 나오는 구조이다.
+  그러므로 총 페이지수를 알 수 없고, 대략 1000페이지 정도 있다고 가정.
+  또한 무한스크롤 코드를 따로 작성하여 기입해주어야한다.
+
+ *** 무한스크롤 코드 넣는 법 출처: https://moondol-ai.tistory.com/107
+
+-------------------------- Concat --------------------------------------------
+5. 02_concat01_mbti_truity.py 에서 truity사이트에 mbti 크롤링 데이터 모두 콘캣
+
+6. 02_concat02_mbti_personality_database.py 에서 personality-database 사이트의 mbti 데이터 모두 콘캣
+
+7. 위의 두가지  사이트의 데이터를 최종적을 콘캣 -> 최종 크롤링데이터의 shape : (6300, 2)
+
+-------------------------- Preprocessing ---------------------------------------
+8. 03_preprocessing01_mbti.py 에서 영어 소문자와 대문자만 남기고 모두 제거  ->  re.compile('[^a-z|A-Z]').sub(' ', str_comment)
+
+9. 03_preprocessing02_mbti.py 에서 앞서 nltk 모듈안에 내장되어있는 stopwords를 불러와서 csv파일로 저장하는 코드 8줄을 사용.
+   * stopwords(Eng).csv에는 따로 불필요한 영단어를 추가하였음.
+
+10. X = df['comment'] 로 Y값 전처리
+    Y = df['type']   로 X값 전처리
+
+11. Y값을 전처리하는 순서
+    nltk 영어 형태소 분석 - stopwords(Eng)로 불용어 제거 - token생성하여 단어 딕셔너리로 저장 -
+    wordsize 알아내기 - 최대길이문장(max) 찾기 - pad_sequences로 문장에 패딩 입혀 행렬화 하기 - train_test_split 및 저장
+
+
+--------------------------- Modeling ----------------------------------------------
+
+12. tensorflow 버전을 낮춘 모델링환경으로 바꿔 실행
+
+--------------------------- Model predict -----------------------------------------------
+
+
+
+* 무시해도 좋고 한 번 열어봐도 좋은 파일
+- info확인하기.py
+- 혼공(무시해도됨).py
+
+requirements 만들어서 넣기 + 설명 첨부 / 폴더랑 파일위치 재확인 / preprocessing2 nltk부분 코드 다시 확인
